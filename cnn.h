@@ -21,10 +21,10 @@ typedef struct convolutional_layer {
 
 typedef struct pooling_layer {
     int w1;   //输入图像的宽
-    int h1;  //输入图像的长
+    int h1;  //输入图像的高
     int kernelSize;      //池化核的大小
     int stride;       //步长
-    int inChannels;   //输入图像的数量
+    int inChannels;   //输入特征图的数量
 
     float ***inputData;
     float ***pooledData;
