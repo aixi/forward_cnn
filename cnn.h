@@ -73,3 +73,10 @@ void pooled2fc(poolLayer pool, float ****pooled2fcWeights, fcLayer *fc); //计�
 float locateSub(float **a, int m, int n, int stride, int kernelSize); //用于计算最大池化的辅助函数
 void fc2fc(fcLayer *fc); //全连接到全连接
 float conv_helper(convLayer *conv, int channels, int loc_m, int loc_n, int stride, int nth_filter); //卷积计算的辅助函数
+void averagePooling(poolLayer *pool); //平均池化
+float averageHelper(float **a, int m, int n, int stride, int kernelSize); //计算最大池化的辅助函数
+int cl_init(convLayer *conv, int inputSize, int kernelSize, int inChannels, int numOutput, int padding, int stride); //填入卷积层超参数，返回输出特征图大小
+int pl_init(poolLayer *pl, float ***inputData, int inputSize, int kernelSize, int inChannels, int stride); //填入池化层超参数，返回输出特征图大小
+float ***malloc_3D(int c, int i, int j);  //分配3D数组空间
+float ****malloc_4D(int n, int c, int i, int j); //分配4D数组空间
+float **malloc_2D(int m, int n); //分配2D数组空间
