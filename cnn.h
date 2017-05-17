@@ -80,3 +80,6 @@ int pl_init(poolLayer *pl, float ***inputData, int inputSize, int kernelSize, in
 float ***malloc_3D(int c, int i, int j);  //分配3D数组空间
 float ****malloc_4D(int n, int c, int i, int j); //分配4D数组空间
 float **malloc_2D(int m, int n); //分配2D数组空间
+void free_4D(float ****a, int n, int c, int i); //释放4D数组空间
+void free_3D(float ***a, int c, int i); //释放3D数组空间
+void free_2D(float **a, int m); //释放2D数组空间

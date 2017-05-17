@@ -13,6 +13,7 @@ int main(void)
     cl_1->biasData = (float *) malloc(sizeof(float) * cl_1->numOutput); 
     cl_1->featureMap = malloc_3D(cl_1->numOutput, cl_1_outsize, cl_1_outsize);
 
+    
     FILE *fp_pic = fopen("/home/xi/pic.txt", "r");
     for (c = 0; c < cl_1->inChannels; ++c) {
         for (i = 0; i < cl_1->h1; ++i) {
@@ -22,6 +23,15 @@ int main(void)
         }
     }
     fclose(fp_pic);
+
+    /*long long count = 0;
+    for (c = 0; c < cl_1->inChannels; c++) {
+        for (i = 0; i < cl_1->h1; i++) {
+            for (j = 0; j < cl_1->w1; j++) {
+                cl_1->inputData[c][i][j] = a[count++];
+            }
+        }
+    }*/
 
     FILE *fp_conv1_w = fopen("/home/xi/params_nin/conv1_w.txt", "r");
     for (l = 0; l < cl_1->numOutput; ++l) {
@@ -33,18 +43,38 @@ int main(void)
             }
         }
     }
+
     fclose(fp_conv1_w);
+
+    /*for (l = 0; l < cl_1->numOutput; ++l) {
+        for (c = 0; c < cl_1->inChannels; ++c) {
+            for (i = 0; i < cl_1->kernelSize; ++i) {
+                for (j = 0; j < cl_1->kernelSize; ++j) {
+                    printf("%f", cl_1->filters[l][c][i][j]);
+                }
+            }
+        }
+    }*/
 
     FILE *fp_conv1_b = fopen("/home/xi/params_nin/conv1_b.txt", "r");
     for (i = 0; i < cl_1->numOutput; ++i) {
         fscanf(fp_conv1_b, "%f", &cl_1->biasData[i]);
     }
     fclose(fp_conv1_b);
-
+    
     conv3D(cl_1);
 
-    free(cl_1->inputData);
-    free(cl_1->filters);
+    /*FILE *fd_output_conv1 = fopen("/home/xi/output.txt", "w");
+    for (c = 0; c < cl_1->numOutput; ++c) {
+        for (i = 0; i < cl_1_outsize; ++i) {
+            for (j = 0; j < cl_1_outsize; ++j) {
+                fprintf(fd_output_conv1, "%f ", cl_1->featureMap[c][i][j]);
+            }
+        }
+    }*/
+
+    free_3D(cl_1->inputData, cl_1->inChannels, cl_1->h1);
+    free_4D(cl_1->filters, cl_1->numOutput, cl_1->inChannels, cl_1->kernelSize);
     free(cl_1->biasData);
 
     convLayer *cccp_1 = (convLayer *) malloc(sizeof(convLayer));
@@ -75,8 +105,17 @@ int main(void)
 
     conv3D(cccp_1);
 
-    free(cccp_1->inputData);
-    free(cccp_1->filters);
+    /*FILE *fd_output_cccp1 = fopen("/home/xi/output_cccp1.txt", "w");
+    for (c = 0; c < cccp_1->numOutput; ++c) {
+        for (i = 0; i < cccp_1_outsize; ++i) {
+            for (j = 0; j < cccp_1_outsize; ++j) {
+                fprintf(fd_output_cccp1, "%f ", cccp_1->featureMap[c][i][j]);
+            }
+        }
+    }*/
+
+    free_3D(cccp_1->inputData, cccp_1->inChannels, cccp_1->h1);
+    free_4D(cccp_1->filters, cccp_1->numOutput, cccp_1->inChannels, cccp_1->kernelSize);
     free(cccp_1->biasData);
 
     convLayer *cccp_2 = (convLayer *) malloc(sizeof(convLayer));
@@ -107,8 +146,17 @@ int main(void)
 
     conv3D(cccp_2);
 
-    free(cccp_2->inputData);
-    free(cccp_2->filters);
+    /*FILE *fd_output_cccp2 = fopen("/home/xi/output_cccp2.txt", "w");
+    for (c = 0; c < cccp_2->numOutput; ++c) {
+        for (i = 0; i < cccp_2_outsize; ++i) {
+            for (j = 0; j < cccp_2_outsize; ++j) {
+                fprintf(fd_output_cccp2, "%f ", cccp_2->featureMap[c][i][j]);
+            }
+        }
+    }*/
+
+    free_3D(cccp_2->inputData, cccp_2->inChannels, cccp_2->h1);
+    free_4D(cccp_2->filters, cccp_2->numOutput, cccp_2->inChannels, cccp_2->kernelSize);
     free(cccp_2->biasData);
 
     poolLayer *pl_0 = (poolLayer *) malloc(sizeof(poolLayer));
@@ -118,7 +166,16 @@ int main(void)
 
     maxPooling(pl_0);
 
-    free(pl_0->inputData);
+    /*FILE *fd_output_pl_0 = fopen("/home/xi/output_pl0.txt", "w");
+    for (c = 0; c < 96; ++c) {
+        for (i = 0; i < 27; ++i) {
+            for (j = 0; j < 27; ++j) {
+                fprintf(fd_output_pl_0, "%f ", pl_0->pooledData[c][i][j]);
+            }
+        }
+    }*/
+
+    free_3D(pl_0->inputData, pl_0->inChannels, pl_0->h1);
 
     convLayer *cl_2 = (convLayer *) malloc(sizeof(convLayer));
     int cl_2_outsize = cl_init(cl_2, pl_0_outsize, 5, pl_0->inChannels, 256, 2, 1);
@@ -163,8 +220,9 @@ int main(void)
 
     conv3D(cl_2);
 
-    free(cl_2->inputData);
-    free(cl_2->filters);
+
+    free_3D(cl_2->inputData, cl_2->inChannels, cl_2->h1);
+    free_4D(cl_2->filters, cl_2->numOutput, cl_2->inChannels, cl_2->kernelSize);
     free(cl_2->biasData);
 
     convLayer *cccp_3 = (convLayer *) malloc(sizeof(convLayer));
@@ -195,8 +253,8 @@ int main(void)
 
     conv3D(cccp_3);
 
-    free(cccp_3->inputData);
-    free(cccp_3->filters);
+    free_3D(cccp_3->inputData, cccp_3->inChannels, cccp_3->h1);
+    free_4D(cccp_3->filters, cccp_3->numOutput, cccp_3->inChannels, cccp_3->kernelSize);
     free(cccp_3->biasData);
 
     convLayer *cccp_4 = (convLayer *) malloc(sizeof(convLayer));
@@ -227,8 +285,8 @@ int main(void)
 
     conv3D(cccp_4);
 
-    free(cccp_4->inputData);
-    free(cccp_4->filters);
+    free_3D(cccp_4->inputData, cccp_4->inChannels, cccp_4->h1);
+    free_4D(cccp_4->filters, cccp_4->numOutput, cccp_4->inChannels, cccp_4->kernelSize);
     free(cccp_4->biasData);
 
     /*for (c = 0; c < cccp_4->numOutput; ++c) {
@@ -246,7 +304,7 @@ int main(void)
 
     maxPooling(pl_2);
 
-    free(pl_2->inputData);
+    //free_3D(pl_2->inputData, pl_2->inChannels, pl_2->h1);
 
     convLayer *cl_3 = (convLayer *) malloc(sizeof(convLayer));
     int cl_3_outsize = cl_init(cl_3, pl_2_outsize, 3, pl_2->inChannels, 384, 1, 1);
@@ -291,8 +349,8 @@ int main(void)
 
     conv3D(cl_3);
 
-    free(cl_3->inputData);
-    free(cl_3->filters);
+    free_3D(cl_3->inputData, cl_3->inChannels, cl_3->h1);
+    free_4D(cl_3->filters, cl_3->numOutput, cl_3->inChannels, cl_3->kernelSize);
     free(cl_3->biasData);
 
     convLayer *cccp_5 = (convLayer *) malloc(sizeof(convLayer));
@@ -323,8 +381,8 @@ int main(void)
 
     conv3D(cccp_5);
 
-    free(cccp_5->inputData);
-    free(cccp_5->filters);
+    free_3D(cccp_5->inputData, cccp_5->inChannels, cccp_5->h1);
+    free_4D(cccp_5->filters, cccp_5->numOutput, cccp_5->inChannels, cccp_5->kernelSize);
     free(cccp_5->biasData);
 
     convLayer *cccp_6 = (convLayer *) malloc(sizeof(convLayer));
@@ -355,8 +413,8 @@ int main(void)
 
     conv3D(cccp_6);
 
-    free(cccp_6->inputData);
-    free(cccp_6->filters);
+    free_3D(cccp_6->inputData, cccp_6->inChannels, cccp_6->h1);
+    free_4D(cccp_6->filters, cccp_6->numOutput, cccp_6->inChannels, cccp_6->kernelSize);
     free(cccp_6->biasData);
     
     poolLayer *pl_3 = (poolLayer *) malloc(sizeof(poolLayer));
@@ -366,7 +424,7 @@ int main(void)
 
     maxPooling(pl_3);
 
-    free(pl_3->inputData);
+    free_3D(pl_3->inputData, pl_3->inChannels, pl_3->h1);
 
     convLayer *cl_4 = (convLayer *) malloc(sizeof(convLayer));
     int cl_4_outsize = cl_init(cl_4, pl_3_outsize, 3, pl_3->inChannels, 1024, 1, 1);
@@ -411,8 +469,8 @@ int main(void)
 
     conv3D(cl_4);
 
-    free(cl_4->inputData);
-    free(cl_4->filters);
+    free_3D(cl_4->inputData, cl_4->inChannels, cl_4->h1);
+    free_4D(cl_4->filters, cl_4->numOutput, cl_4->inChannels, cl_4->kernelSize);
     free(cl_4->biasData);
 
     convLayer *cccp_7 = (convLayer *) malloc(sizeof(convLayer));
@@ -443,8 +501,8 @@ int main(void)
 
     conv3D(cccp_7);
 
-    free(cccp_7->inputData);
-    free(cccp_7->filters);
+    free_3D(cccp_7->inputData, cccp_7->inChannels, cccp_7->h1);
+    free_4D(cccp_7->filters, cccp_7->numOutput, cccp_7->inChannels, cccp_7->kernelSize);
     free(cccp_7->biasData);
 
     convLayer *cccp_8 = (convLayer *) malloc(sizeof(convLayer));
@@ -474,8 +532,8 @@ int main(void)
 
     conv3D(cccp_8);
 
-    free(cccp_8->inputData);
-    free(cccp_8->filters);
+    free_3D(cccp_8->inputData, cccp_8->inChannels, cccp_8->h1);
+    free_4D(cccp_8->filters, cccp_8->numOutput, cccp_8->inChannels, cccp_8->kernelSize);
     free(cccp_8->biasData);
 
     poolLayer *pl_4 = (poolLayer *) malloc(sizeof(poolLayer));
@@ -485,7 +543,7 @@ int main(void)
 
     averagePooling(pl_4);
 
-    free(pl_4->inputData);
+    free_3D(pl_4->inputData, pl_4->inChannels, pl_4->h1);
 
     for (c = 0; c < pl_4->inChannels; ++c) {
         for (i = 0; i < pl_4_outsize; ++i) {
@@ -494,5 +552,7 @@ int main(void)
             }
         }
     }
+
+    free_3D(pl_4->pooledData, pl_4->inChannels, pl_4_outsize);
     return 0;
 }

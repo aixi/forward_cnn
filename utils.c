@@ -14,7 +14,7 @@ float relu(float x)
 float locateSub(float **a, int m, int n, int stride, int kernelSize)
 {
     int i, j;
-    int max = a[m * stride][n * stride];
+    float max = a[m * stride][n * stride];
     for (i = m * stride; i < m * stride + kernelSize; ++i) {
         for (j = n * stride; j < n * stride + kernelSize; ++j) {
             if (a[i][j] > max)
@@ -34,7 +34,7 @@ void maxPooling(poolLayer *pool)
     for (l = 0; l < pool->inChannels; ++l) {
         for (i = 0; i < pooledSize; ++i) {
             for (j = 0; j < pooledSize; ++j) {
-                pool->pooledData[l][i][j] = locateSub(pool->inputData[l], i, j, pool->stride, pool->kernelSize);
+                pool->pooledData[l][i][j] = locateSub(pool->inputData[l], i, j, s, kernelSize);
             }
         }
     }
@@ -62,7 +62,7 @@ void averagePooling(poolLayer *pool)
     for (l = 0; l < pool->inChannels; ++l) {
         for (i = 0; i < pooledSize; ++i) {
             for (j = 0; j < pooledSize; ++j) {
-                pool->pooledData[l][i][j] = averageHelper(pool->inputData[l], i, j, pool->stride, pool->kernelSize);
+                pool->pooledData[l][i][j] = averageHelper(pool->inputData[l], i, j, s, kernelSize);
             }
         }
     }
@@ -117,6 +117,7 @@ int pl_init(poolLayer *pl, float ***inputData, int inputSize, int kernelSize, in
     pl->stride = stride;
     return (inputSize - kernelSize) / stride + 1;
 }
+
 void pooled2fc(poolLayer pool, float ****pooled2fcWeights, fcLayer *fc)
 {
     int l, k, i, j;
@@ -161,6 +162,26 @@ float ****malloc_4D(int n, int c, int i, int j)
     return a; 
 }
 
+void free_4D(float ****a, int n, int c, int i) 
+{
+    int q, w, e;
+    for (q = 0; q < n; ++q) {
+        for (w = 0; w < c; ++w) {
+            for (e = 0; e < i; ++e) {
+                free(a[q][w][e]);
+            }
+        }
+    }
+    for (q = 0; q < n; ++q) {
+        for (w = 0; w < c; ++w) {
+            free(a[q][w]);
+        }
+    }
+    for (q = 0; q < n; ++q) {
+        free(a[q]);
+    }
+}
+
 float ***malloc_3D(int c, int i, int j)
 {
     int q, w;
@@ -174,6 +195,19 @@ float ***malloc_3D(int c, int i, int j)
     return a;
 }
 
+void free_3D(float ***a, int c, int i)
+{
+    int q, w;
+    for (q = 0; q < c; ++q) {
+        for (w = 0; w < i; ++w) {
+            free(a[q][w]);
+        }
+    }
+    for (q = 0; q < c; ++q) {
+        free(a[q]);
+    }
+}
+
 float **malloc_2D(int m, int n)
 {
     int w;
@@ -182,4 +216,12 @@ float **malloc_2D(int m, int n)
         a[w] = (float *) malloc(sizeof(float) * n);
     }
     return a;
+}
+
+void free_2D(float **a, int m)
+{
+    int w;
+    for (w = 0; w < m; ++w) {
+        free(a[w]);
+    }
 }
